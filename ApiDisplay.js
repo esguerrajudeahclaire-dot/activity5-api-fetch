@@ -4,6 +4,8 @@ import { View, Text, StyleSheet } from 'react-native';
 
 export default function ApiDisplay() {
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -12,11 +14,17 @@ export default function ApiDisplay() {
           'https://jsonplaceholder.typicode.com/posts?_limit=5'
         );
 
+        if (!response.ok) {
+          throw new Error('Failed to fetch posts');
+        }
+
         const result = await response.json();
         setPosts(result);
 
       } catch (error) {
-        console.log('Error fetching data:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -26,6 +34,11 @@ export default function ApiDisplay() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>API Posts</Text>
+
+      {loading && <Text>Loading...</Text>}
+
+      {error !== '' && <Text>{error}</Text>}
+
       <Text>Fetched posts: {posts.length}</Text>
     </View>
   );
