@@ -1,6 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView
+} from 'react-native';
 
 export default function ApiDisplay() {
   const [posts, setPosts] = useState([]);
@@ -23,6 +28,7 @@ export default function ApiDisplay() {
 
       } catch (error) {
         setError(error.message);
+
       } finally {
         setLoading(false);
       }
@@ -32,27 +38,73 @@ export default function ApiDisplay() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>API Posts</Text>
 
       {loading && <Text>Loading...</Text>}
 
-      {error !== '' && <Text>{error}</Text>}
+      {error !== '' && <Text>Error: {error}</Text>}
 
-      <Text>Fetched posts: {posts.length}</Text>
-    </View>
+      {!loading && error === '' && (
+        <View>
+          {posts.map((post) => (
+            <View key={post.id} style={styles.card}>
+              <Text style={styles.postId}>
+                Post #{post.id}
+              </Text>
+
+              <Text style={styles.postTitle}>
+                {post.title}
+              </Text>
+
+              <Text style={styles.body}>
+                {post.body}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F5F5F5',
     padding: 20,
-    backgroundColor: '#fff',
   },
+
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
+    marginBottom: 20,
+    marginTop: 30,
+  },
+
+  card: {
+    backgroundColor: '#FFFFFF',
+    padding: 15,
     marginBottom: 15,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#DDDDDD',
+  },
+
+  postId: {
+    fontSize: 14,
+    color: 'gray',
+    marginBottom: 5,
+  },
+
+  postTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+
+  body: {
+    fontSize: 15,
+    color: '#444444',
   },
 });
