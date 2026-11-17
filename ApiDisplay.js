@@ -4,49 +4,72 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView
+  ScrollView,
+  Pressable
 } from 'react-native';
 
 export default function ApiDisplay() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await fetch(
-          'https://jsonplaceholder.typicode.com/posts?_limit=5'
-        );
+  const fetchPosts = async () => {
+    try {
+      setError('');
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch posts');
-        }
+      const response = await fetch(
+        'https://jsonplaceholder.typicode.com/posts?_limit=5'
+      );
 
-        const result = await response.json();
-        setPosts(result);
-
-      } catch (error) {
-        setError(error.message);
-
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error('Failed to fetch posts');
       }
-    };
 
+      const result = await response.json();
+      setPosts(result);
+
+    } catch (error) {
+      setError(error.message);
+
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
     fetchPosts();
   }, []);
+
+  const refreshPosts = () => {
+    setRefreshing(true);
+    fetchPosts();
+  };
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>API Posts</Text>
+
       <Text style={styles.subtitle}>
-  Latest posts from JSONPlaceholder
-</Text>
+        Latest posts from JSONPlaceholder
+      </Text>
+
+      <Pressable
+        style={styles.button}
+        onPress={refreshPosts}
+        disabled={refreshing}
+      >
+        <Text style={styles.buttonText}>
+          {refreshing ? 'Refreshing...' : 'Refresh Posts'}
+        </Text>
+      </Pressable>
 
       {loading && <Text>Loading...</Text>}
 
-      {error !== '' && <Text>Error: {error}</Text>}
+      {error !== '' && <Text style={styles.error}>
+        Error: {error}
+      </Text>}
 
       {!loading && error === '' && (
         <View>
@@ -81,8 +104,33 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 10,
     marginTop: 30,
+  },
+
+  subtitle: {
+    fontSize: 15,
+    color: '#777777',
+    marginBottom: 20,
+  },
+
+  button: {
+    backgroundColor: '#344B3A',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  error: {
+    color: 'red',
+    marginBottom: 15,
   },
 
   card: {
@@ -110,10 +158,4 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#444444',
   },
-  
-  subtitle: {
-  fontSize: 15,
-  color: '#777777',
-  marginBottom: 20,
-},
 });
