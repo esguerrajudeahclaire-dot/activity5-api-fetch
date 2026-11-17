@@ -40,6 +40,9 @@ export default function ApiDisplay() {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>API Posts</Text>
+      <Text style={styles.subtitle}>
+  Latest posts from JSONPlaceholder
+</Text>
 
       {loading && <Text>Loading...</Text>}
 
@@ -107,4 +110,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#444444',
   },
+  
+  subtitle: {
+  fontSize: 15,
+  color: '#777777',
+  marginBottom: 20,
+},
 });
